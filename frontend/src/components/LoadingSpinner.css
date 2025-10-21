@@ -1,31 +1,101 @@
-/* SmartBook Loading Spinner Styles */
+/* SmartBook Loading Spinner - Next Level Awesome (Modified for NoteVision) */
 .spinner-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+  background: linear-gradient(135deg, 
+    var(--color-bg-primary) 0%, 
+    var(--color-bg-secondary) 50%,
+    var(--color-bg-primary) 100%);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  /* Initial fade-in to ensure it appears smoothly */
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards; 
+  /* Added transition for general changes */
+  transition: opacity 0.8s ease-out;
+}
+
+/* New: Class to trigger the slow fade-out */
+.spinner-overlay.fade-out {
+  animation: fadeOut 0.8s ease-out forwards;
+}
+
+/* Animated Background Particles */
+.background-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFloat 8s ease-in-out infinite;
+}
+
+.particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+.particle:nth-child(2) { top: 60%; left: 80%; animation-delay: 1s; }
+.particle:nth-child(3) { top: 80%; left: 20%; animation-delay: 2s; }
+.particle:nth-child(4) { top: 30%; left: 90%; animation-delay: 3s; }
+.particle:nth-child(5) { top: 70%; left: 15%; animation-delay: 4s; }
+
+/* Neural Network Connections */
+.neural-network {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0.1;
+}
+
+.neural-path {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  height: 1px;
+  animation: neuralPulse 4s ease-in-out infinite;
+}
+
+.neural-node {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  animation: nodeGlow 2s ease-in-out infinite;
 }
 
 .smartbook-loader {
   text-align: center;
   position: relative;
+  z-index: 10;
+  /* Staggered fade-in for the main content */
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.3s forwards;
 }
 
-/* Animated Book Icon */
+/* Holographic Book Container */
 .book-container {
   position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 30px;
-  perspective: 1000px;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 40px;
+  perspective: 1200px;
+  filter: drop-shadow(0 20px 40px rgba(59, 130, 246, 0.3));
 }
 
 .book {
@@ -33,211 +103,460 @@
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  animation: bookFloat 3s ease-in-out infinite;
+  animation: bookHologram 4s ease-in-out infinite;
 }
 
+/* Holographic Book Cover */
 .book-cover {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.9) 0%, 
+    rgba(139, 92, 246, 0.8) 50%,
+    rgba(59, 130, 246, 0.9) 100%);
   border-radius: 12px 20px 20px 12px;
   box-shadow: 
-    0 10px 30px rgba(59, 130, 246, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 0 60px rgba(59, 130, 246, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
   transform: rotateY(0deg);
-  animation: bookOpen 2.5s ease-in-out infinite;
+  animation: bookBreath 3s ease-in-out infinite;
 }
 
+/* Holographic Effect */
+.book-cover::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    transparent 30%, 
+    rgba(255, 255, 255, 0.4) 50%, 
+    transparent 70%);
+  border-radius: 14px 22px 22px 14px;
+  animation: hologramScan 3s linear infinite;
+  z-index: 2;
+}
+
+/* Intelligent Pages with Code-like Text */
 .book-pages {
   position: absolute;
-  width: 95%;
-  height: 90%;
-  top: 5%;
-  left: 2.5%;
-  background: linear-gradient(90deg, #f8fafc 0%, #ffffff 10%, #f8fafc 100%);
-  border-radius: 8px 15px 15px 8px;
-  transform: rotateY(-5deg);
+  width: 92%;
+  height: 88%;
+  top: 6%;
+  left: 4%;
+  background: linear-gradient(90deg, 
+    rgba(248, 250, 252, 0.9) 0%, 
+    rgba(255, 255, 255, 0.95) 20%,
+    rgba(248, 250, 252, 0.9) 100%);
+  border-radius: 8px 16px 16px 8px;
+  transform: rotateY(-8deg);
   overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
-.page-line {
+.page-content {
   position: absolute;
   width: 100%;
-  height: 1px;
-  background: var(--color-border-light);
-  left: 10%;
-  animation: pageScan 2s ease-in-out infinite;
+  height: 100%;
+  padding: 15px;
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  line-height: 1.2;
+  color: var(--color-text-secondary);
+  opacity: 0.7;
 }
 
-.page-line:nth-child(1) { top: 20%; animation-delay: 0.1s; }
-.page-line:nth-child(2) { top: 35%; animation-delay: 0.3s; }
-.page-line:nth-child(3) { top: 50%; animation-delay: 0.5s; }
-.page-line:nth-child(4) { top: 65%; animation-delay: 0.7s; }
-.page-line:nth-child(5) { top: 80%; animation-delay: 0.9s; }
+.code-line {
+  margin-bottom: 2px;
+  opacity: 0;
+  animation: codeReveal 0.5s ease-out forwards;
+}
 
-/* Sparkle Effects */
-.sparkle {
+/* Updated code-line animation delays for a longer sequence */
+.code-line:nth-child(1) { animation-delay: 1.0s; }
+.code-line:nth-child(2) { animation-delay: 1.5s; }
+.code-line:nth-child(3) { animation-delay: 2.0s; }
+.code-line:nth-child(4) { animation-delay: 2.5s; }
+.code-line:nth-child(5) { animation-delay: 3.0s; }
+
+/* Quantum Particles */
+.quantum-particles {
   position: absolute;
-  width: 6px;
-  height: 6px;
-  background: white;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.quantum-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--color-accent);
   border-radius: 50%;
   opacity: 0;
-  animation: sparklePop 2s ease-in-out infinite;
+  animation: quantumOrbit 3s linear infinite;
 }
 
-.sparkle-1 { top: 20%; left: 30%; animation-delay: 0.2s; }
-.sparkle-2 { top: 60%; left: 70%; animation-delay: 0.8s; }
-.sparkle-3 { top: 80%; left: 40%; animation-delay: 1.4s; }
+.quantum-particle:nth-child(1) { 
+  top: 30%; left: 30%; 
+  animation-delay: 0s; 
+}
+.quantum-particle:nth-child(2) { 
+  top: 60%; left: 60%; 
+  animation-delay: 0.5s; 
+}
+.quantum-particle:nth-child(3) { 
+  top: 20%; left: 70%; 
+  animation-delay: 1s; 
+}
 
-/* Logo and Text */
-.loader-logo {
-  font-size: 3.5rem;
+/* Logo with Word-by-Word Animation */
+.loader-logo-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.logo-word {
+  display: inline-block;
+  font-size: 4rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  background: linear-gradient(135deg, 
+    var(--color-primary) 0%, 
+    var(--color-accent) 30%,
+    #00ff88 70%,
+    var(--color-primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 10px;
-  letter-spacing: -1px;
-  animation: logoGlow 2s ease-in-out infinite;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease-in-out infinite;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: wordReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
+/* Adjusted logo word delays */
+.logo-word:nth-child(1) { animation-delay: 0.5s; } 
+.logo-word:nth-child(2) { animation-delay: 0.7s; } 
+
+.logo-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  filter: blur(40px);
+  z-index: -1;
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Tagline with Typewriter Effect */
 .loader-tagline {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   color: var(--color-text-secondary);
   font-weight: 500;
   margin-bottom: 40px;
-  opacity: 0;
-  animation: fadeInUp 1s ease-out 0.5s forwards;
+  height: 2rem;
+  position: relative;
 }
 
-/* Progress Bar */
-.progress-container {
-  width: 200px;
-  height: 4px;
-  background: var(--color-border-light);
-  border-radius: 10px;
+.tagline-text {
+  display: inline-block;
   overflow: hidden;
-  margin-top: 20px;
+  border-right: 2px solid var(--color-primary);
+  white-space: nowrap;
+  /* Typewriter animation duration set to 3.0s */
+  animation: typewriter 3.0s steps(40, end) 1.2s forwards, 
+             blinkCursor 0.8s step-end infinite 4.2s; /* Blink starts after typewriter finishes */
+  width: 0;
 }
 
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
-  border-radius: 10px;
-  width: 0%;
-  animation: progressLoad 2s ease-in-out infinite;
-}
-
-/* Loading Dots */
-.loading-dots {
+/* AI Processing Indicator */
+.ai-processing {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
+  gap: 15px;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
-.dot {
+.process-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--color-primary);
+  animation: processThink 1.5s ease-in-out infinite;
+}
+
+.process-dot:nth-child(1) { animation-delay: 0s; }
+.process-dot:nth-child(2) { animation-delay: 0.2s; }
+.process-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Quantum Progress Bar */
+.progress-container {
+  width: 300px;
+  height: 6px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(59, 130, 246, 0.2) 50%, 
+    transparent 100%);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 30px 0;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, 
+    var(--color-primary) 0%, 
+    var(--color-accent) 50%,
+    #00ff88 100%);
+  border-radius: 10px;
+  width: 0%;
+  /* Progress animation duration adjusted to 4.0s */
+  animation: quantumProgress 4.0s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.6) 50%, 
+    transparent 100%);
+  animation: progressShine 2s ease-in-out infinite;
+}
+
+/* DNA Helix Animation */
+.dna-helix {
+  position: absolute;
+  bottom: 50px;
+  width: 200px;
+  height: 80px;
   opacity: 0.3;
-  animation: dotPulse 1.4s ease-in-out infinite both;
 }
 
-.dot:nth-child(1) { animation-delay: -0.32s; }
-.dot:nth-child(2) { animation-delay: -0.16s; }
-.dot:nth-child(3) { animation-delay: 0s; }
-
-/* Animations */
-@keyframes bookFloat {
-  0%, 100% { transform: translateY(0px) rotateX(5deg); }
-  50% { transform: translateY(-10px) rotateX(8deg); }
+.helix-strand {
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  background: var(--color-primary);
+  left: 50%;
+  transform: translateX(-50%);
+  animation: helixRotate 4s linear infinite;
 }
 
-@keyframes bookOpen {
-  0%, 100% { transform: rotateY(0deg); }
-  50% { transform: rotateY(-10deg); }
+.helix-node {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  animation: helixNode 2s ease-in-out infinite;
 }
 
-@keyframes pageScan {
-  0%, 100% { transform: translateX(-100%); opacity: 0; }
-  50% { transform: translateX(0%); opacity: 1; }
-  80% { transform: translateX(100%); opacity: 0; }
+/* Enhanced Animations */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
-@keyframes sparklePop {
+/* NEW: Slow fade-out animation for smooth disappearance */
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes bookHologram {
   0%, 100% { 
-    opacity: 0; 
-    transform: scale(0) rotate(0deg); 
+    transform: translateY(0px) rotateX(5deg) rotateY(0deg); 
+    filter: hue-rotate(0deg);
+  }
+  25% { 
+    transform: translateY(-15px) rotateX(8deg) rotateY(5deg); 
+    filter: hue-rotate(90deg);
   }
   50% { 
-    opacity: 1; 
-    transform: scale(1) rotate(180deg); 
+    transform: translateY(-5px) rotateX(5deg) rotateY(0deg); 
+    filter: hue-rotate(180deg);
+  }
+  75% { 
+    transform: translateY(-10px) rotateX(8deg) rotateY(-5deg); 
+    filter: hue-rotate(270deg);
   }
 }
 
-@keyframes logoGlow {
+@keyframes bookBreath {
   0%, 100% { 
-    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
+    box-shadow: 
+      0 0 60px rgba(59, 130, 246, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
   50% { 
-    filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
+    box-shadow: 
+      0 0 80px rgba(59, 130, 246, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
   }
 }
 
-@keyframes fadeInUp {
-  from {
+@keyframes hologramScan {
+  0% { transform: translateX(-100%) skewX(-20deg); }
+  100% { transform: translateX(200%) skewX(-20deg); }
+}
+
+@keyframes wordReveal {
+  0% { 
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px) scale(0.8);
+    filter: blur(10px);
   }
-  to {
+  100% { 
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    filter: blur(0);
   }
 }
 
-@keyframes progressLoad {
-  0% { width: 0%; }
-  50% { width: 70%; }
+@keyframes typewriter {
+  0% { width: 0; }
   100% { width: 100%; }
 }
 
-@keyframes dotPulse {
-  0%, 80%, 100% {
-    transform: scale(0.8);
+@keyframes blinkCursor {
+  0%, 50% { border-color: var(--color-primary); }
+  51%, 100% { border-color: transparent; }
+}
+
+@keyframes quantumProgress {
+  0% { width: 0%; }
+  20% { width: 25%; }
+  40% { width: 45%; }
+  60% { width: 65%; }
+  80% { width: 80%; }
+  90% { width: 99%; }
+  100% { width: 100%; }
+}
+
+@keyframes progressShine {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes processThink {
+  0%, 100% { 
+    transform: scale(1);
     opacity: 0.3;
   }
-  40% {
-    transform: scale(1.2);
+  50% { 
+    transform: scale(1.5);
+    opacity: 1;
+    background: var(--color-accent);
+  }
+}
+
+@keyframes particleFloat {
+  0%, 100% { 
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  50% { 
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.6;
+  }
+}
+
+@keyframes quantumOrbit {
+  0% { 
+    transform: rotate(0deg) translateX(20px) rotate(0deg);
+    opacity: 0;
+  }
+  50% { 
     opacity: 1;
   }
+  100% { 
+    transform: rotate(360deg) translateX(20px) rotate(-360deg);
+    opacity: 0;
+  }
 }
 
-/* Dark mode adjustments */
-[data-theme="dark"] .spinner-overlay {
-  background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+@keyframes codeReveal {
+  0% { 
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-[data-theme="dark"] .book-pages {
-  background: linear-gradient(90deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 10%, var(--color-bg-tertiary) 100%);
+@keyframes neuralPulse {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.3; }
 }
 
-/* Responsive design */
+@keyframes nodeGlow {
+  0%, 100% { 
+    box-shadow: 0 0 5px var(--color-accent);
+  }
+  50% { 
+    box-shadow: 0 0 15px var(--color-accent);
+  }
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .book-container {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
   }
   
-  .loader-logo {
-    font-size: 2.5rem;
+  .logo-word {
+    font-size: 2.8rem;
   }
   
   .loader-tagline {
+    font-size: 1.1rem;
+  }
+  
+  .progress-container {
+    width: 250px;
+  }
+  
+  .ai-processing {
     font-size: 1rem;
   }
+}
+
+/* Ultra-smooth performance */
+.spinner-overlay * {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
 }

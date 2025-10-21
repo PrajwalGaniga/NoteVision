@@ -1,105 +1,424 @@
+/* ShareModal.css - Professional Clean Design */
+:root {
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-bg-card: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-tertiary: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 20px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+}
+
+[data-theme='dark'] {
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #94a3b8;
+  --color-bg-card: #1e293b;
+  --color-bg-secondary: #334155;
+  --color-bg-tertiary: #475569;
+  --color-border: #475569;
+  --color-border-light: #334155;
+}
+
 /* Modal Backdrop */
 .modal-backdrop {
-  position: fixed; /* Sit on top of the page content */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Black background with opacity */
-  display: flex; /* Use flexbox to center content */
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Make sure it's on top */
+  z-index: 10000;
+  padding: var(--space-md);
+  backdrop-filter: blur(4px);
 }
 
-/* Modal Content Box */
+/* Modal Content */
 .modal-content {
-  background-color: #fff;
-  padding: 30px 40px;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  width: 90%;
-  max-width: 500px; /* Limit maximum width */
-  position: relative; /* Needed for positioning close button later if desired */
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-border);
+  width: 100%;
+  max-width: 480px;
+  position: relative;
   text-align: center;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.modal-content h2 {
-  margin-top: 0;
-  margin-bottom: 25px;
-  color: #333;
-  word-break: break-word; /* Wrap long notebook names */
+/* Modal Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xl);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
-/* Re-use input group styles from AuthPage? Or define here */
-.modal-content .input-group {
-  margin-bottom: 20px;
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.modal-header h2 {
+  color: var(--color-text-primary);
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.header-icon {
+  color: var(--color-primary);
+  font-size: 1.5rem;
+}
+
+.close-button {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.1rem;
+}
+
+.close-button:hover:not(:disabled) {
+  background: var(--color-error);
+  color: white;
+  border-color: var(--color-error);
+}
+
+.close-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form Content */
+.modal-form-content {
+  padding: var(--space-xl);
+}
+
+.share-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+/* Input Groups */
+.input-group {
   text-align: left;
 }
-.modal-content .input-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-  color: #555;
+
+.input-group label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
 }
-.modal-content .input-group input,
-.modal-content .input-group select {
+
+.label-icon {
+  color: var(--color-primary);
+  font-size: 1rem;
+}
+
+.input-group input,
+.input-group select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: var(--space-md);
+  font-size: 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  transition: all 0.2s ease;
   box-sizing: border-box;
-  font-size: 1em;
 }
 
-.share-submit-button {
+.input-group input:focus,
+.input-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input-group input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.input-group input:disabled,
+.input-group select:disabled {
+  background: var(--color-bg-secondary);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Permission Description */
+.permission-description {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  border-left: 4px solid var(--color-primary);
+}
+
+.permission-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.permission-icon.view {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--color-primary);
+}
+
+.permission-icon.edit {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+}
+
+.permission-text {
+  flex: 1;
+  text-align: left;
+}
+
+.permission-text strong {
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  display: block;
+  margin-bottom: var(--space-xs);
+}
+
+.permission-text p {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Buttons */
+.submit-button {
   width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  background-color: #3498db;
-  color: white;
+  padding: var(--space-md) var(--space-xl);
+  font-size: 1rem;
+  font-weight: 600;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 0.2s;
-  margin-top: 10px; /* Space above button */
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  min-height: 48px;
 }
 
-.share-submit-button:hover:not(:disabled) {
-  background-color: #2980b9;
+.submit-button.primary {
+  background: var(--color-primary);
+  color: white;
 }
- .share-submit-button:disabled {
-  background-color: #bdc3c7;
+
+.submit-button.primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.submit-button.secondary {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.submit-button.secondary:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-primary);
+}
+
+.submit-button:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
+/* Loading Spinner */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
-.share-message {
-  margin-top: 15px;
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Messages */
+.message {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
   font-weight: 500;
-}
-.share-message.error {
-  color: #e74c3c;
-}
-.share-message.success {
-  color: #2ecc71;
-}
-
-.close-modal-button {
-  background: none;
-  border: 1px solid #ccc;
-  color: #555;
-  cursor: pointer;
-  margin-top: 20px;
-  padding: 8px 15px;
-  border-radius: 4px;
-  font-size: 14px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
 }
 
-.close-modal-button:hover {
-  background-color: #f1f1f1;
+.message.success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
- .close-modal-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
+
+.message.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.message-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* Success Content */
+.success-content {
+  padding: var(--space-2xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 300px;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--color-success);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  margin-bottom: var(--space-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.success-title {
+  color: var(--color-success);
+  margin: 0 0 var(--space-sm) 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.success-message {
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .modal-backdrop {
+    padding: var(--space-sm);
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    border-radius: var(--radius-xl) var(--radius-xl) var(--radius-lg) var(--radius-lg);
+    max-height: 85vh;
+  }
+
+  .modal-header {
+    padding: var(--space-lg);
+  }
+
+  .modal-form-content {
+    padding: var(--space-lg);
+  }
+
+  .modal-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .permission-description {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-sm);
+  }
+
+  .permission-icon {
+    align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 0;
+  }
+
+  .modal-header {
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .modal-form-content {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .success-content {
+    padding: var(--space-xl);
+  }
+
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 1.5rem;
+  }
+
+  .success-title {
+    font-size: 1.3rem;
+  }
 }

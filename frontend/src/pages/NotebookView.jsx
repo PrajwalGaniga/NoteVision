@@ -1,5 +1,15 @@
+// NotebookView.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useSpring, animated } from '@react-spring/web';
+import { 
+  FiArrowLeft, FiDownload, FiSearch, FiEdit3, 
+  FiTrash2, FiSave, FiX, FiFileText, 
+  FiEye, FiUpload, FiBook, FiCalendar,
+  FiCheck, FiLoader
+} from 'react-icons/fi';
+import { IoDocumentTextOutline, IoSparklesOutline } from 'react-icons/io5';
 import Uploader from '../Uploader';
 import QuizView from './QuizView';
 import './NotebookView.css';
@@ -28,6 +38,69 @@ function NotebookView({ darkMode }) {
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editingContent, setEditingContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  // Animation springs
+  const headerSpring = useSpring({
+    from: { opacity: 0, transform: 'translateY(-20px)' },
+    to: { opacity: 1, transform: 'translateY(0px)' },
+    config: { tension: 300, friction: 20 }
+  });
+
+  const contentSpring = useSpring({
+    from: { opacity: 0, transform: 'translateY(10px)' },
+    to: { opacity: 1, transform: 'translateY(0px)' },
+    delay: 200,
+    config: { tension: 280, friction: 20 }
+  });
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 24
+      }
+    }
+  };
+
+  const noteCardVariants = {
+    hidden: { scale: 0.9, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 24
+      }
+    },
+    hover: {
+      scale: 1.02,
+      y: -4,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 10
+      }
+    },
+    tap: {
+      scale: 0.98
+    }
+  };
 
   // --- Fetch Notebook Details ---
   const fetchNotebookData = async () => {
@@ -306,180 +379,356 @@ function NotebookView({ darkMode }) {
 
   // --- Component Render ---
   return (
-    <div className="notebook-view-container" data-theme={darkMode ? 'dark' : 'light'}>
-      <nav className="notebook-nav">
-        <Link to="/">Back to All Notebooks</Link>
-        <button
+    <motion.div 
+      className="notebook-view-container"
+      data-theme={darkMode ? 'dark' : 'light'}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* Navigation Bar */}
+      <animated.nav className="notebook-nav" style={headerSpring}>
+        <motion.div
+          whileHover={{ x: -5 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Link to="/" className="nav-back-link">
+            <FiArrowLeft className="nav-icon" />
+            Back to All Notebooks
+          </Link>
+        </motion.div>
+        
+        <motion.button
           onClick={handleDownloadPdf}
           disabled={isDownloading || notes.length === 0 || showQuiz}
           className="pdf-button"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 400, damping: 10 }}
         >
-          {isDownloading ? '📥 Generating...' : '📥 Download PDF'}
-        </button>
-      </nav>
+          {isDownloading ? (
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
+              <FiLoader />
+            </motion.div>
+          ) : (
+            <>
+              <FiDownload className="button-icon" />
+              Download PDF
+            </>
+          )}
+        </motion.button>
+      </animated.nav>
 
       {/* --- Conditional Rendering: Quiz or Uploader/Notes --- */}
-      {showQuiz && quizData ? (
-        <QuizView quizData={quizData} onQuizComplete={handleQuizComplete} darkMode={darkMode} />
-      ) : (
-        <>
-          {/* Show Uploader only if user has edit permission */}
-          {userPermission === 'edit' && (
-            <Uploader 
-              key={notebookId} 
-              notebookId={notebookId} 
-              onNoteSaved={handleNoteSaved} 
-              darkMode={darkMode}
-            />
-          )}
-          
-          {/* Show message if user cannot upload */}
-          {userPermission === 'view' && !showQuiz && (
-            <div className="view-only-message">
-              👀 You have view-only access. You cannot add, edit, or delete notes.
-            </div>
-          )}
+      <AnimatePresence mode="wait">
+        {showQuiz && quizData ? (
+          <motion.div
+            key="quiz"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3 }}
+          >
+            <QuizView quizData={quizData} onQuizComplete={handleQuizComplete} darkMode={darkMode} />
+          </motion.div>
+        ) : (
+          <animated.div key="notes" style={contentSpring}>
+            {/* Show Uploader only if user has edit permission */}
+            {userPermission === 'edit' && (
+              <Uploader 
+                key={notebookId} 
+                notebookId={notebookId} 
+                onNoteSaved={handleNoteSaved} 
+                darkMode={darkMode}
+              />
+            )}
+            
+            {/* Show message if user cannot upload */}
+            {userPermission === 'view' && !showQuiz && (
+              <motion.div 
+                className="view-only-message"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <FiEye className="message-icon" />
+                You have view-only access. You cannot add, edit, or delete notes.
+              </motion.div>
+            )}
 
-          {/* Saved Notes Section */}
-          <div className="notes-list-section">
-            <div className="notes-header">
-              <h2>
-                Notes in "{notebookName}"
-                {notes.length > 0 && (
-                  <span className="notes-count">
-                    {filteredNotes.length}/{notes.length}
-                  </span>
-                )}
-              </h2>
-              
-              {/* Show Quiz button only if user has view/edit permission and notes exist */}
-              {userPermission !== 'none' && notes.length > 0 && (
-                <button
-                  onClick={handleGenerateQuiz}
-                  disabled={showQuiz || quizMessage.includes('Generating')}
-                  className="quiz-generate-button"
+            {/* Saved Notes Section */}
+            <motion.div 
+              className="notes-list-section"
+              variants={itemVariants}
+            >
+              <div className="notes-header">
+                <motion.h2 
+                  className="notebook-title"
+                  whileHover={{ scale: 1.02 }}
                 >
-                  {quizMessage.includes('Generating') ? '⏳ Generating...' : '🧠 Generate Quiz'}
-                </button>
-              )}
-            </div>
-
-            {/* Search Bar - only show if there are notes */}
-            {notes.length > 0 && (
-              <div className="search-notes-bar">
-                <input
-                  type="text"
-                  placeholder="Search through your notes..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            )}
-
-            {/* Status Messages */}
-            {(quizMessage || message) && (
-              <div className={`notes-message ${
-                (quizMessage && quizMessage.startsWith('❌')) || 
-                (message && message.startsWith('❌')) ? 'error' : 
-                message.startsWith('✅') ? 'success' : ''
-              }`}>
-                {quizMessage || message}
-              </div>
-            )}
-
-            {/* Notes Grid Display */}
-            {notes.length > 0 ? (
-              filteredNotes.length > 0 ? (
-                <div className="notes-grid">
-                  {filteredNotes.map((note) => (
-                    <div 
-                      key={note._id} 
-                      className={`note-card ${editingNoteId === note._id ? 'editing' : ''}`}
+                  <FiBook className="title-icon" />
+                  Notes in "{notebookName}"
+                  {notes.length > 0 && (
+                    <motion.span 
+                      className="notes-count"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
                     >
-                      {/* --- Conditional Editing UI --- */}
-                      {editingNoteId === note._id ? (
-                        // --- Edit Mode ---
-                        <div className="note-edit-form">
-                          <textarea
-                            value={editingContent}
-                            onChange={(e) => setEditingContent(e.target.value)}
-                            rows="8"
-                            placeholder="Edit your note content..."
-                          />
-                          <div className="edit-actions">
-                            <button 
-                              onClick={() => handleSaveEdit(note._id)} 
-                              className="save-button"
-                              disabled={isSaving}
-                            >
-                              {isSaving ? '💾 Saving...' : '💾 Save'}
-                            </button>
-                            <button 
-                              onClick={handleCancelEdit} 
-                              className="cancel-button"
-                              disabled={isSaving}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        // --- View Mode ---
-                        <>
-                          <pre className="note-content">{note.content}</pre>
-                          <div className="note-footer">
-                            <p className="note-date">
-                              📅 {new Date(note.created_at).toLocaleString()}
-                            </p>
-                            {/* Show Edit/Delete only if user has edit permission */}
-                            {userPermission === 'edit' && (
-                              <div className="note-actions">
-                                <button 
-                                  onClick={() => handleEditClick(note)} 
-                                  className="edit-button" 
-                                  title="Edit Note"
+                      {filteredNotes.length}/{notes.length}
+                    </motion.span>
+                  )}
+                </motion.h2>
+                
+                {/* Show Quiz button only if user has view/edit permission and notes exist */}
+                {userPermission !== 'none' && notes.length > 0 && (
+                  <motion.button
+                    onClick={handleGenerateQuiz}
+                    disabled={showQuiz || quizMessage.includes('Generating')}
+                    className="quiz-generate-button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    {quizMessage.includes('Generating') ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      >
+                        <FiLoader />
+                      </motion.div>
+                    ) : (
+                      <>
+                        <IoSparklesOutline className="button-icon" />
+                        Generate Quiz
+                      </>
+                    )}
+                  </motion.button>
+                )}
+              </div>
+
+              {/* Search Bar - only show if there are notes */}
+              {notes.length > 0 && (
+                <motion.div 
+                  className="search-notes-bar"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div className="search-container">
+                    <FiSearch className="search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Search through your notes..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    {searchTerm && (
+                      <motion.button
+                        onClick={() => setSearchTerm('')}
+                        className="clear-search"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <FiX />
+                      </motion.button>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Status Messages */}
+              <AnimatePresence>
+                {(quizMessage || message) && (
+                  <motion.div 
+                    className={`notes-message ${
+                      (quizMessage && quizMessage.startsWith('❌')) || 
+                      (message && message.startsWith('❌')) ? 'error' : 
+                      message.startsWith('✅') ? 'success' : ''
+                    }`}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {quizMessage || message}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Notes Grid Display */}
+              {notes.length > 0 ? (
+                filteredNotes.length > 0 ? (
+                  <motion.div 
+                    className="notes-grid"
+                    layout
+                  >
+                    {filteredNotes.map((note, index) => (
+                      <motion.div
+                        key={note._id}
+                        className={`note-card ${editingNoteId === note._id ? 'editing' : ''}`}
+                        variants={noteCardVariants}
+                        initial="hidden"
+                        animate="visible"
+                        whileHover="hover"
+                        whileTap="tap"
+                        layout
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        {/* --- Conditional Editing UI --- */}
+                        {editingNoteId === note._id ? (
+                          // --- Edit Mode ---
+                          <motion.div 
+                            className="note-edit-form"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <textarea
+                              value={editingContent}
+                              onChange={(e) => setEditingContent(e.target.value)}
+                              rows="8"
+                              placeholder="Edit your note content..."
+                              className="edit-textarea"
+                            />
+                            <div className="edit-actions">
+                              <motion.button 
+                                onClick={() => handleSaveEdit(note._id)} 
+                                className="save-button"
+                                disabled={isSaving}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                {isSaving ? (
+                                  <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                  >
+                                    <FiLoader />
+                                  </motion.div>
+                                ) : (
+                                  <>
+                                    <FiSave className="button-icon" />
+                                    Save
+                                  </>
+                                )}
+                              </motion.button>
+                              <motion.button 
+                                onClick={handleCancelEdit} 
+                                className="cancel-button"
+                                disabled={isSaving}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                <FiX className="button-icon" />
+                                Cancel
+                              </motion.button>
+                            </div>
+                          </motion.div>
+                        ) : (
+                          // --- View Mode ---
+                          <>
+                            <pre className="note-content">{note.content}</pre>
+                            <div className="note-footer">
+                              <motion.p 
+                                className="note-date"
+                                whileHover={{ scale: 1.05 }}
+                              >
+                                <FiCalendar className="date-icon" />
+                                {new Date(note.created_at).toLocaleString()}
+                              </motion.p>
+                              {/* Show Edit/Delete only if user has edit permission */}
+                              {userPermission === 'edit' && (
+                                <motion.div 
+                                  className="note-actions"
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  transition={{ delay: 0.2 }}
                                 >
-                                  ✏️
-                                </button>
-                                <button 
-                                  onClick={() => handleDeleteNote(note._id)} 
-                                  className="delete-button" 
-                                  title="Delete Note"
-                                >
-                                  🗑️
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                                  <motion.button 
+                                    onClick={() => handleEditClick(note)} 
+                                    className="edit-button" 
+                                    title="Edit Note"
+                                    whileHover={{ scale: 1.2, rotate: 15 }}
+                                    whileTap={{ scale: 0.9 }}
+                                  >
+                                    <FiEdit3 />
+                                  </motion.button>
+                                  <motion.button 
+                                    onClick={() => handleDeleteNote(note._id)} 
+                                    className="delete-button" 
+                                    title="Delete Note"
+                                    whileHover={{ scale: 1.2 }}
+                                    whileTap={{ scale: 0.9 }}
+                                  >
+                                    <FiTrash2 />
+                                  </motion.button>
+                                </motion.div>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                ) : (
+                  // Show message if search found nothing, but notes exist
+                  <motion.div 
+                    className="search-empty-state"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <FiSearch className="empty-icon" />
+                    <h3>No matching notes</h3>
+                    <p>No notes found for "{searchTerm}"</p>
+                    <motion.button
+                      onClick={() => setSearchTerm('')}
+                      className="clear-search-button"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Clear Search
+                    </motion.button>
+                  </motion.div>
+                )
               ) : (
-                // Show message if search found nothing, but notes exist
-                <div className="search-empty-state">
-                  🔍 No notes match your search for "{searchTerm}"
-                </div>
-              )
-            ) : (
-              // Show message if there are no notes at all and not currently loading
-              !message.includes('Loading') && (
-                <div className="empty-state">
-                  <h3>No notes yet</h3>
-                  <p>
-                    {userPermission === 'edit' 
-                      ? 'Start by uploading a file or creating your first note!' 
-                      : 'This notebook is empty. Check back later for updates.'
-                    }
-                  </p>
-                </div>
-              )
-            )}
-          </div>
-        </>
-      )}
-    </div>
+                // Show message if there are no notes at all and not currently loading
+                !message.includes('Loading') && (
+                  <motion.div 
+                    className="empty-state"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <IoDocumentTextOutline className="empty-icon" />
+                    <h3>No notes yet</h3>
+                    <p>
+                      {userPermission === 'edit' 
+                        ? 'Start by uploading a file or creating your first note!' 
+                        : 'This notebook is empty. Check back later for updates.'
+                      }
+                    </p>
+                    {userPermission === 'edit' && (
+                      <motion.div
+                        animate={{ y: [0, -5, 0] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        style={{ marginTop: 'var(--space-md)' }}
+                      >
+                        <FiUpload className="upload-hint" />
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )
+              )}
+            </motion.div>
+          </animated.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 

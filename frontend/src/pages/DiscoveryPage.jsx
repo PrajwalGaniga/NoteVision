@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useSpring, animated } from '@react-spring/web';
+import { FiSearch, FiX, FiEye, FiHeart, FiGlobe, FiTrendingUp } from 'react-icons/fi';
+import { IoEarthOutline, IoFlameOutline } from 'react-icons/io5';
 import './DiscoveryPage.css';
 
 function DiscoveryPage({ darkMode }) {
@@ -10,6 +14,69 @@ function DiscoveryPage({ darkMode }) {
   const [isLiking, setIsLiking] = useState({});
   const token = localStorage.getItem('token');
   const currentUserEmail = localStorage.getItem('email');
+
+  // Animation springs
+  const headerSpring = useSpring({
+    from: { opacity: 0, transform: 'translateY(-30px)' },
+    to: { opacity: 1, transform: 'translateY(0px)' },
+    config: { tension: 300, friction: 20 }
+  });
+
+  const searchSpring = useSpring({
+    from: { opacity: 0, scale: 0.9 },
+    to: { opacity: 1, scale: 1 },
+    delay: 200,
+    config: { tension: 280, friction: 20 }
+  });
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 24
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { scale: 0.9, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 24
+      }
+    },
+    hover: {
+      scale: 1.02,
+      y: -8,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 10
+      }
+    },
+    tap: {
+      scale: 0.98
+    }
+  };
 
   // Function to Fetch/Search Public Notebooks
   const searchNotebooks = async (query = '') => {
@@ -140,156 +207,216 @@ function DiscoveryPage({ darkMode }) {
   };
 
   return (
-    <div className="discovery-page-container" data-theme={darkMode ? 'dark' : 'light'}>
-      <header className="discovery-header">
-        <h1>Discover Public Notes 🌍</h1>
-        <p>
+    <motion.div 
+      className="discovery-page-container" 
+      data-theme={darkMode ? 'dark' : 'light'}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* Header Section */}
+      <animated.header className="discovery-header" style={headerSpring}>
+        <motion.h1
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+        >
+          Discover Public Notes <IoEarthOutline className="header-icon" />
+        </motion.h1>
+        <motion.p 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
           Explore and learn from notebooks shared by the community. 
           {publicNotebooks.length > 0 && ` Found ${publicNotebooks.length} notebook${publicNotebooks.length !== 1 ? 's' : ''}`}
-        </p>
-      </header>
+        </motion.p>
+      </animated.header>
 
       {/* Search Bar */}
-      <div className="discovery-search-bar">
-        <input
-          type="text"
-          placeholder="Search by notebook name, tags, or topics..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          disabled={isLoading}
-        />
-        {searchTerm && (
-          <button
-            onClick={handleClearSearch}
-            style={{
-              position: 'absolute',
-              right: 'var(--space-md)',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              color: 'var(--color-text-tertiary)',
-              cursor: 'pointer',
-              fontSize: '1.2rem'
-            }}
-            title="Clear search"
-          >
-            ×
-          </button>
-        )}
-      </div>
+      <animated.div className="discovery-search-bar" style={searchSpring}>
+        <motion.div 
+          className="input-container"
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+        >
+          <FiSearch className="input-icon" />
+          <input
+            type="text"
+            placeholder="Search by notebook name, tags, or topics..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            disabled={isLoading}
+          />
+          {searchTerm && (
+            <motion.button
+              onClick={handleClearSearch}
+              className="clear-search-button"
+              title="Clear search"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <FiX />
+            </motion.button>
+          )}
+        </motion.div>
+      </animated.div>
 
       {/* Messages */}
-      {message && (
-        <div className={`discovery-message ${isLoading ? 'loading' : message.includes('Error') ? 'error' : ''}`}>
-          {message}
-        </div>
-      )}
+      <AnimatePresence>
+        {message && (
+          <motion.div 
+            className={`discovery-message ${isLoading ? 'loading' : message.includes('Error') ? 'error' : ''}`}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            {message}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Public Notebooks Grid */}
-      <div className="public-notebook-list">
-        {publicNotebooks.map((notebook) => {
-          const isLiked = notebook.likes.includes(currentUserEmail);
-          const likeCount = notebook.likes.length;
-          const popularity = getPopularityIndicator(likeCount);
-          
-          return (
-            <div key={notebook._id} className="public-notebook-card">
-              {/* Featured Badge for highly liked notebooks */}
-              {likeCount >= 10 && (
-                <div className="featured-badge">
-                  Featured 🔥
-                </div>
-              )}
-              
-              <h3>{notebook.name}</h3>
-              
-              <p className="owner-info">
-                Shared by: {notebook.owner_email}
-              </p>
-
-              {/* Popularity Indicator */}
-              <div className="popularity-indicator ${popularity}">
-                {likeCount} like{likeCount !== 1 ? 's' : ''}
-              </div>
-
-              {/* Tags */}
-              {notebook.tags && notebook.tags.length > 0 && (
-                <div className="tags-container">
-                  {notebook.tags.map((tag, index) => (
-                    <span key={index} className="tag">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* Card Footer */}
-              <div className="card-footer">
-                <Link 
-                  to={`/notebook/${notebook._id}`} 
-                  className="open-public-button"
-                  title={`View ${notebook.name}`}
-                >
-                  👁️ View Notes
-                </Link>
+      <motion.div className="public-notebook-list" layout>
+        <AnimatePresence mode="wait">
+          {publicNotebooks.map((notebook, index) => {
+            const isLiked = notebook.likes.includes(currentUserEmail);
+            const likeCount = notebook.likes.length;
+            const popularity = getPopularityIndicator(likeCount);
+            
+            return (
+              <motion.div
+                key={notebook._id}
+                className="public-notebook-card"
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                whileHover="hover"
+                whileTap="tap"
+                layout
+                transition={{ delay: index * 0.1 }}
+              >
+                {/* Featured Badge for highly liked notebooks */}
+                {likeCount >= 10 && (
+                  <motion.div 
+                    className="featured-badge"
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
+                    <IoFlameOutline style={{ marginRight: '4px' }} />
+                    Featured
+                  </motion.div>
+                )}
                 
-                <button
-                  onClick={() => handleLikeToggle(notebook._id)}
-                  className={`like-button ${isLiked ? 'liked' : ''}`}
-                  title={isLiked ? 'Unlike this notebook' : 'Like this notebook'}
-                  disabled={isLiking[notebook._id]}
+                <h3>
+                  <FiGlobe style={{ color: 'var(--color-primary)' }} />
+                  {notebook.name}
+                </h3>
+                
+                <p className="owner-info">
+                  <FiTrendingUp />
+                  Shared by: {notebook.owner_email}
+                </p>
+
+                {/* Popularity Indicator */}
+                <motion.div 
+                  className={`popularity-indicator ${popularity}`}
+                  whileHover={{ scale: 1.05 }}
                 >
-                  {isLiked ? '❤️' : '🤍'} 
-                  <span>{likeCount}</span>
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                  {likeCount} like{likeCount !== 1 ? 's' : ''}
+                </motion.div>
+
+                {/* Tags */}
+                {notebook.tags && notebook.tags.length > 0 && (
+                  <div className="tags-container">
+                    {notebook.tags.map((tag, index) => (
+                      <motion.span 
+                        key={index} 
+                        className="tag"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                        whileHover={{ scale: 1.1 }}
+                      >
+                        #{tag}
+                      </motion.span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Card Footer */}
+                <div className="card-footer">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Link 
+                      to={`/notebook/${notebook._id}`} 
+                      className="open-public-button"
+                      title={`View ${notebook.name}`}
+                    >
+                      <FiEye />
+                      View Notes
+                    </Link>
+                  </motion.div>
+                  
+                  <motion.button
+                    onClick={() => handleLikeToggle(notebook._id)}
+                    className={`like-button ${isLiked ? 'liked' : ''}`}
+                    title={isLiked ? 'Unlike this notebook' : 'Like this notebook'}
+                    disabled={isLiking[notebook._id]}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <FiHeart />
+                    <span>{likeCount}</span>
+                  </motion.button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </motion.div>
 
       {/* Empty State when no results */}
-      {!isLoading && publicNotebooks.length === 0 && searchTerm && (
-        <div className="empty-state">
-          <h3>No matches found</h3>
-          <p>Try searching with different keywords or browse all public notebooks.</p>
-          <button
-            onClick={handleClearSearch}
-            style={{
-              marginTop: 'var(--space-md)',
-              padding: 'var(--space-sm) var(--space-lg)',
-              background: 'var(--color-primary)',
-              color: 'white',
-              border: 'none',
-              borderRadius: 'var(--radius-md)',
-              cursor: 'pointer',
-              fontWeight: '600'
-            }}
+      <AnimatePresence>
+        {!isLoading && publicNotebooks.length === 0 && searchTerm && (
+          <motion.div 
+            className="empty-state"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
           >
-            Show All Notebooks
-          </button>
-        </div>
-      )}
+            <h3>No matches found</h3>
+            <p>Try searching with different keywords or browse all public notebooks.</p>
+            <motion.button
+              onClick={handleClearSearch}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Show All Notebooks
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Help Text */}
       {!isLoading && publicNotebooks.length > 0 && (
-        <div style={{
-          textAlign: 'center',
-          marginTop: 'var(--space-2xl)',
-          padding: 'var(--space-lg)',
-          background: 'var(--color-bg-tertiary)',
-          borderRadius: 'var(--radius-lg)',
-          border: '1px solid var(--color-border-light)',
-          color: 'var(--color-text-secondary)',
-          fontSize: '0.9rem'
-        }}>
-          <p style={{ margin: 0 }}>
+        <motion.div 
+          className="help-text"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <p>
             <strong>💡 Tip:</strong> Like notebooks you find helpful! This helps others discover great content.
           </p>
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
 

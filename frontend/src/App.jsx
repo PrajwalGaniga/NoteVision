@@ -1,6 +1,9 @@
 // App.jsx
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useSpring, animated } from '@react-spring/web';
+import { FiSun, FiMoon, FiHome, FiCalendar, FiCompass, FiUser, FiLogOut } from 'react-icons/fi';
 import AuthPage from './pages/AuthPage';
 import NotebooksDashboard from './pages/NotebooksDashboard';
 import NotebookView from './pages/NotebookView';
@@ -10,52 +13,165 @@ import ProfilePage from './pages/ProfilePage';
 import LoadingSpinner from './components/LoadingSpinner';
 import './App.css';
 
-// --- Layout Component with Dark Mode Toggle ---
+// --- Layout Component with Enhanced Animations ---
 function Layout({ userName, userEmail, onLogout, darkMode, onToggleDarkMode }) {
+  const [isHovered, setIsHovered] = useState(null);
+  
+  const themeAnimation = useSpring({
+    transform: darkMode ? 'rotate(180deg)' : 'rotate(0deg)',
+    config: { tension: 300, friction: 20 }
+  });
+
+  const navItemVariants = {
+    initial: { y: -20, opacity: 0 },
+    animate: { y: 0, opacity: 1 },
+    hover: { 
+      scale: 1.05,
+      transition: { type: "spring", stiffness: 400, damping: 10 }
+    },
+    tap: { scale: 0.95 }
+  };
+
   return (
-    <div>
-      <nav className="main-nav">
-        <Link to="/" className="nav-link">Dashboard</Link>
-        <Link to="/calendar" className="nav-link">Calendar</Link>
-        <Link to="/discover" className="nav-link">Discover</Link>
-        <Link to="/profile" className="nav-link">Profile</Link>
-        
-        {/* Dark Mode Toggle */}
-        <button 
+    <motion.nav 
+      className="main-nav"
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+    >
+      <div className="nav-links-container">
+        {[
+          { to: "/", icon: FiHome, label: "Dashboard" },
+          { to: "/calendar", icon: FiCalendar, label: "Calendar" },
+          { to: "/discover", icon: FiCompass, label: "Discover" },
+          { to: "/profile", icon: FiUser, label: "Profile" }
+        ].map((item, index) => (
+          <motion.div
+            key={item.to}
+            variants={navItemVariants}
+            initial="initial"
+            animate="animate"
+            whileHover="hover"
+            whileTap="tap"
+            custom={index}
+          >
+            <Link 
+              to={item.to} 
+              className="nav-link"
+              onMouseEnter={() => setIsHovered(item.to)}
+              onMouseLeave={() => setIsHovered(null)}
+            >
+              <item.icon className="nav-icon" />
+              <span>{item.label}</span>
+              {isHovered === item.to && (
+                <motion.div 
+                  className="nav-hover-effect"
+                  layoutId="navHover"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                />
+              )}
+            </Link>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="nav-controls">
+        {/* Enhanced Theme Toggle */}
+        <animated.button 
           onClick={onToggleDarkMode}
           className="theme-toggle"
+          style={themeAnimation}
           aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
         >
-          {darkMode ? '☀️' : '🌙'}
-        </button>
-        
-        <span className="user-display">
+          {darkMode ? <FiSun /> : <FiMoon />}
+        </animated.button>
+
+        {/* User Display with Animation */}
+        <motion.span 
+          className="user-display"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <motion.div
+            animate={{ 
+              rotate: [0, 10, -10, 0],
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity, 
+              repeatDelay: 5 
+            }}
+            style={{ display: 'inline-block', marginRight: '8px' }}
+          >
+            👋
+          </motion.div>
           Welcome, {userName || userEmail}!
-        </span>
-        <button onClick={onLogout} className="logout-button">
+        </motion.span>
+
+        {/* Enhanced Logout Button */}
+        <motion.button 
+          onClick={onLogout} 
+          className="logout-button"
+          whileHover={{ 
+            scale: 1.05,
+            boxShadow: "0 10px 25px -5px rgba(239, 68, 68, 0.4)"
+          }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <FiLogOut className="button-icon" />
           Logout
-        </button>
-      </nav>
-    </div>
+        </motion.button>
+      </div>
+    </motion.nav>
   );
 }
 
-// --- Main App Component ---
+// --- Main App Component with Enhanced Animations ---
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [email, setEmail] = useState(localStorage.getItem('email'));
   const [name, setName] = useState(localStorage.getItem('name'));
   const [isLoading, setIsLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
-    // Check if user has a theme preference in localStorage
     const savedTheme = localStorage.getItem('theme');
-    // Also check system preference as fallback
     if (savedTheme) {
       return savedTheme === 'dark';
     }
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Enhanced page transition variants
+  const pageVariants = {
+    initial: { 
+      opacity: 0, 
+      y: 20,
+      scale: 0.98
+    },
+    in: { 
+      opacity: 1, 
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        duration: 0.6
+      }
+    },
+    out: { 
+      opacity: 0, 
+      y: -20,
+      scale: 1.02,
+      transition: {
+        duration: 0.3
+      }
+    }
+  };
 
   // Effect to apply dark mode to document
   useEffect(() => {
@@ -99,7 +215,7 @@ function App() {
     }
   };
 
-  // Handle successful login
+  // Handle successful login with enhanced animation
   const handleLogin = async (receivedToken) => {
     setIsLoading(true);
     console.log("DEBUG: Login successful via AuthPage, processing token...");
@@ -137,16 +253,21 @@ function App() {
     }
   };
 
-  // Handle logout
+  // Handle logout with animation
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('email');
-    localStorage.removeItem('name');
-    setToken(null);
-    setEmail(null);
-    setName(null);
-    navigate('/login');
-    console.log("DEBUG: User logged out.");
+    // Add logout animation
+    setIsLoading(true);
+    setTimeout(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('email');
+      localStorage.removeItem('name');
+      setToken(null);
+      setEmail(null);
+      setName(null);
+      setIsLoading(false);
+      navigate('/login');
+      console.log("DEBUG: User logged out.");
+    }, 800);
   };
 
   // Effect to fetch user details on initial load
@@ -163,14 +284,13 @@ function App() {
     }
   }, []);
 
-  // --- Render Loading Spinner ---
+  // Enhanced Loading Spinner
   if (isLoading) {
-    return <LoadingSpinner message="Loading your space..." />;
+    return <LoadingSpinner message="Loading your space..." darkMode={darkMode} />;
   }
 
-  // --- Render Main App Structure ---
   return (
-    <div className={darkMode ? 'dark-theme' : 'light-theme'}>
+    <div className={`app-container ${darkMode ? 'dark-theme' : 'light-theme'}`}>
       {/* Render Layout (Navbar) only if logged in */}
       {token && (
         <Layout 
@@ -182,25 +302,99 @@ function App() {
         />
       )}
 
-      <Routes>
-        {!token ? (
-          // --- Logged Out Routes ---
-          <>
-            <Route path="/login" element={<AuthPage onLogin={handleLogin} darkMode={darkMode} />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </>
-        ) : (
-          // --- Logged In Routes ---
-          <>
-            <Route path="/" element={<NotebooksDashboard darkMode={darkMode} />} />
-            <Route path="/notebook/:notebookId" element={<NotebookView darkMode={darkMode} />} />
-            <Route path="/calendar" element={<CalendarPage darkMode={darkMode} />} />
-            <Route path="/discover" element={<DiscoveryPage darkMode={darkMode} />} />
-            <Route path="/profile" element={<ProfilePage darkMode={darkMode} />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </>
-        )}
-      </Routes>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          {!token ? (
+            // --- Logged Out Routes ---
+            <>
+              <Route 
+                path="/login" 
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                  >
+                    <AuthPage onLogin={handleLogin} darkMode={darkMode} />
+                  </motion.div>
+                } 
+              />
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </>
+          ) : (
+            // --- Logged In Routes ---
+            <>
+              <Route 
+                path="/" 
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                  >
+                    <NotebooksDashboard darkMode={darkMode} />
+                  </motion.div>
+                } 
+              />
+              <Route 
+                path="/notebook/:notebookId" 
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                  >
+                    <NotebookView darkMode={darkMode} />
+                  </motion.div>
+                } 
+              />
+              <Route 
+                path="/calendar" 
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                  >
+                    <CalendarPage darkMode={darkMode} />
+                  </motion.div>
+                } 
+              />
+              <Route 
+                path="/discover" 
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                  >
+                    <DiscoveryPage darkMode={darkMode} />
+                  </motion.div>
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                  >
+                    <ProfilePage darkMode={darkMode} />
+                  </motion.div>
+                } 
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </>
+          )}
+        </Routes>
+      </AnimatePresence>
     </div>
   );
 }

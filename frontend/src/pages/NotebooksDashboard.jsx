@@ -1,5 +1,14 @@
+// NotebooksDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useSpring, animated } from '@react-spring/web';
+import { 
+  FiPlus, FiBook, FiUsers, FiLock, FiUnlock, 
+  FiTrash2, FiShare2, FiTag, FiEdit3, 
+  FiFolder, FiFolderPlus, FiUser 
+} from 'react-icons/fi';
+import { IoBookOutline, IoPeopleOutline } from 'react-icons/io5';
 import './NotebooksDashboard.css';
 import ShareModal from './ShareModal';
 
@@ -8,6 +17,7 @@ function NotebooksDashboard({ darkMode }) {
   const [sharedNotebooks, setSharedNotebooks] = useState([]);
   const [newNotebookName, setNewNotebookName] = useState('');
   const [message, setMessage] = useState('Loading your notebooks...');
+  const [isCreating, setIsCreating] = useState(false);
   const token = localStorage.getItem('token');
 
   // State for Share Modal
@@ -17,6 +27,69 @@ function NotebooksDashboard({ darkMode }) {
   // State for Tag Editing
   const [editingTagsId, setEditingTagsId] = useState(null);
   const [currentTags, setCurrentTags] = useState('');
+
+  // Animation springs
+  const headerSpring = useSpring({
+    from: { opacity: 0, transform: 'translateY(-30px)' },
+    to: { opacity: 1, transform: 'translateY(0px)' },
+    config: { tension: 300, friction: 20 }
+  });
+
+  const formSpring = useSpring({
+    from: { opacity: 0, scale: 0.9 },
+    to: { opacity: 1, scale: 1 },
+    delay: 200,
+    config: { tension: 280, friction: 20 }
+  });
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 24
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { scale: 0.9, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 24
+      }
+    },
+    hover: {
+      scale: 1.02,
+      y: -8,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 10
+      }
+    },
+    tap: {
+      scale: 0.98
+    }
+  };
 
   // Fetch both owned and shared notebooks
   const fetchData = async () => {
@@ -66,6 +139,7 @@ function NotebooksDashboard({ darkMode }) {
       return; 
     }
     
+    setIsCreating(true);
     setMessage('Creating notebook...');
     try {
       const response = await fetch('http://127.0.0.1:8000/notebooks', {
@@ -90,15 +164,17 @@ function NotebooksDashboard({ darkMode }) {
         likes: newNotebook.likes ?? [] 
       };
       
-      setMyNotebooks([...myNotebooks, notebookWithDefaults]);
+      setMyNotebooks([notebookWithDefaults, ...myNotebooks]);
       setNewNotebookName('');
       setMessage('🎉 Notebook created successfully!');
+      setIsCreating(false);
       
       // Clear success message after 3 seconds
       setTimeout(() => setMessage(''), 3000);
       
     } catch (error) { 
-      setMessage(`❌ Error: ${error.message}`); 
+      setMessage(`❌ Error: ${error.message}`);
+      setIsCreating(false);
     }
   };
 
@@ -275,169 +351,386 @@ function NotebooksDashboard({ darkMode }) {
   };
 
   return (
-    <div className="dashboard-container" data-theme={darkMode ? 'dark' : 'light'}>
-      <header className="dashboard-header">
-        <h1>My Notebooks 📚</h1>
-        <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.1rem' }}>
+    <motion.div 
+      className="dashboard-container"
+      data-theme={darkMode ? 'dark' : 'light'}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* Header Section */}
+      <animated.header className="dashboard-header" style={headerSpring}>
+        <motion.h1
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+        >
+          My Notebooks <IoBookOutline className="header-icon" />
+        </motion.h1>
+        <motion.p 
+          className="dashboard-subtitle"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
           Organize your thoughts and collaborate with others
-        </p>
-      </header>
+        </motion.p>
+      </animated.header>
 
       {/* Create Notebook Form */}
-      <div className="create-notebook-form">
-        <form onSubmit={handleCreateNotebook}>
-          <input 
-            type="text" 
-            value={newNotebookName} 
-            onChange={(e) => setNewNotebookName(e.target.value)} 
-            placeholder="Enter a name for your new notebook..." 
-            required 
-          />
-          <button type="submit">Create Notebook</button>
-        </form>
-      </div>
+      <animated.div className="create-notebook-form" style={formSpring}>
+        <motion.form 
+          onSubmit={handleCreateNotebook}
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+        >
+          <div className="input-container">
+            <FiFolderPlus className="input-icon" />
+            <input 
+              type="text" 
+              value={newNotebookName} 
+              onChange={(e) => setNewNotebookName(e.target.value)} 
+              placeholder="Enter a name for your new notebook..." 
+              required 
+            />
+          </div>
+          <motion.button 
+            type="submit" 
+            className="create-button"
+            disabled={isCreating}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            {isCreating ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              >
+                <FiPlus />
+              </motion.div>
+            ) : (
+              <>
+                <FiPlus className="button-icon" />
+                Create Notebook
+              </>
+            )}
+          </motion.button>
+        </motion.form>
+      </animated.div>
 
-      {message && <p className="message-text">{message}</p>}
+      {/* Message Display */}
+      <AnimatePresence>
+        {message && (
+          <motion.p 
+            className="message-text"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            {message}
+          </motion.p>
+        )}
+      </AnimatePresence>
 
       {/* Owned Notebooks Section */}
-      <div className="notebook-section">
-        <h2>📁 Your Notebooks ({myNotebooks.length})</h2>
-        {myNotebooks.length > 0 ? (
-          <div className="notebook-list">
-            {myNotebooks.map((notebook) => (
-              <div key={notebook._id} className="notebook-card owned">
-                <h3>{notebook.name}</h3>
-                <p>Created: {new Date(notebook.created_at).toLocaleDateString()}</p>
+      <motion.section className="notebook-section" variants={itemVariants}>
+        <motion.h2 
+          className="section-title"
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+        >
+          <FiFolder className="section-icon" />
+          Your Notebooks ({myNotebooks.length})
+        </motion.h2>
+        
+        <AnimatePresence mode="wait">
+          {myNotebooks.length > 0 ? (
+            <motion.div 
+              className="notebook-list"
+              layout
+            >
+              {myNotebooks.map((notebook, index) => (
+                <motion.div
+                  key={notebook._id}
+                  className="notebook-card owned"
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  whileHover="hover"
+                  whileTap="tap"
+                  layout
+                  transition={{ delay: index * 0.1 }}
+                >
+                  {/* Notebook Header */}
+                  <div className="notebook-header">
+                    <h3>
+                      <FiBook className="notebook-icon" />
+                      {notebook.name}
+                    </h3>
+                    <motion.span 
+                      className="date-badge"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      {new Date(notebook.created_at).toLocaleDateString()}
+                    </motion.span>
+                  </div>
 
-                {/* Tags Display/Edit UI */}
-                <div className="tags-section">
-                  {editingTagsId === notebook._id ? (
-                    <div className="tags-edit-form">
-                      <input 
-                        type="text" 
-                        value={currentTags} 
-                        onChange={handleTagsInputChange} 
-                        placeholder="Comma-separated tags (e.g., work, ideas, personal)" 
-                        autoFocus
-                      />
-                      <div className="tags-edit-actions">
-                        <button onClick={() => handleSaveTags(notebook._id)} className="save-tags-button">
-                          Save
-                        </button>
-                        <button onClick={handleCancelEditTags} className="cancel-tags-button">
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="tags-view">
-                      <div className="tags-container">
-                        {(notebook.tags && notebook.tags.length > 0) ? (
-                          notebook.tags.map((tag, index) => (
-                            <span key={index} className="tag">{tag}</span>
-                          ))
-                        ) : (
-                          <span className="no-tags">No tags added</span>
-                        )}
-                      </div>
-                      <button 
-                        onClick={() => handleEditTagsClick(notebook)} 
-                        className="edit-tags-button" 
-                        title="Edit Tags"
+                  {/* Tags Display/Edit UI */}
+                  <div className="tags-section">
+                    {editingTagsId === notebook._id ? (
+                      <motion.div 
+                        className="tags-edit-form"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
                       >
-                        ✏️
-                      </button>
-                    </div>
-                  )}
-                </div>
+                        <div className="input-container">
+                          <FiTag className="input-icon" />
+                          <input 
+                            type="text" 
+                            value={currentTags} 
+                            onChange={handleTagsInputChange} 
+                            placeholder="Comma-separated tags (e.g., work, ideas, personal)" 
+                            autoFocus
+                          />
+                        </div>
+                        <div className="tags-edit-actions">
+                          <motion.button 
+                            onClick={() => handleSaveTags(notebook._id)} 
+                            className="save-tags-button"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            Save
+                          </motion.button>
+                          <motion.button 
+                            onClick={handleCancelEditTags} 
+                            className="cancel-tags-button"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            Cancel
+                          </motion.button>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <div className="tags-view">
+                        <div className="tags-container">
+                          {(notebook.tags && notebook.tags.length > 0) ? (
+                            notebook.tags.map((tag, index) => (
+                              <motion.span 
+                                key={index} 
+                                className="tag"
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: index * 0.1 }}
+                                whileHover={{ scale: 1.1 }}
+                              >
+                                {tag}
+                              </motion.span>
+                            ))
+                          ) : (
+                            <span className="no-tags">No tags added</span>
+                          )}
+                        </div>
+                        <motion.button 
+                          onClick={() => handleEditTagsClick(notebook)} 
+                          className="edit-tags-button" 
+                          title="Edit Tags"
+                          whileHover={{ scale: 1.1, rotate: 15 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <FiEdit3 />
+                        </motion.button>
+                      </div>
+                    )}
+                  </div>
 
-                {/* Visibility Toggle UI */}
-                <div className="visibility-control">
-                  <span className={`status-indicator ${notebook.is_public ? 'public' : 'private'}`}>
-                    {notebook.is_public ? '🌐 Public' : '🔒 Private'}
-                  </span>
-                  <button 
-                    onClick={() => handleVisibilityToggle(notebook._id, notebook.is_public)} 
-                    className="toggle-visibility-button" 
-                    title={notebook.is_public ? 'Make Private' : 'Make Public'}
+                  {/* Visibility Toggle UI */}
+                  <motion.div 
+                    className="visibility-control"
+                    whileHover={{ scale: 1.02 }}
                   >
-                    {notebook.is_public ? 'Make Private' : 'Make Public'}
-                  </button>
-                </div>
+                    <span className={`status-indicator ${notebook.is_public ? 'public' : 'private'}`}>
+                      {notebook.is_public ? <FiUnlock /> : <FiLock />}
+                      {notebook.is_public ? 'Public' : 'Private'}
+                    </span>
+                    <motion.button 
+                      onClick={() => handleVisibilityToggle(notebook._id, notebook.is_public)} 
+                      className="toggle-visibility-button" 
+                      title={notebook.is_public ? 'Make Private' : 'Make Public'}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {notebook.is_public ? 'Make Private' : 'Make Public'}
+                    </motion.button>
+                  </motion.div>
 
-                {/* Card Actions */}
-                <div className="card-actions">
-                  <button 
-                    onClick={() => handleDeleteNotebook(notebook._id, notebook.name)} 
-                    className="delete-notebook-button" 
-                    title="Delete this notebook"
-                  >
-                    🗑️ Delete
-                  </button>
-                  <Link to={`/notebook/${notebook._id}`} className="open-button">
-                    📖 Open
-                  </Link>
-                  <button 
-                    onClick={() => openShareModal(notebook._id, notebook.name)} 
-                    className="share-button" 
-                    title="Share this notebook"
-                  >
-                    🔗 Share
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          !message.includes('Loading') && 
-          !message.startsWith('Error') && 
-          !message.includes('Creating') && 
-          <p>You haven't created any notebooks yet. Start by creating one above! 🚀</p>
-        )}
-      </div>
+                  {/* Card Actions */}
+                  <div className="card-actions">
+                    <motion.button 
+                      onClick={() => handleDeleteNotebook(notebook._id, notebook.name)} 
+                      className="delete-notebook-button" 
+                      title="Delete this notebook"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FiTrash2 />
+                      Delete
+                    </motion.button>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Link to={`/notebook/${notebook._id}`} className="open-button">
+                        <FiBook />
+                        Open
+                      </Link>
+                    </motion.div>
+                    <motion.button 
+                      onClick={() => openShareModal(notebook._id, notebook.name)} 
+                      className="share-button" 
+                      title="Share this notebook"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FiShare2 />
+                      Share
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            !message.includes('Loading') && 
+            !message.startsWith('Error') && 
+            !message.includes('Creating') && (
+              <motion.div 
+                className="empty-state"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <FiFolder className="empty-icon" />
+                <h3>No notebooks yet</h3>
+                <p>Start by creating your first notebook above! 🚀</p>
+              </motion.div>
+            )
+          )}
+        </AnimatePresence>
+      </motion.section>
 
       {/* Shared Notebooks Section */}
-      <div className="notebook-section">
-        <h2>👥 Shared With Me ({sharedNotebooks.length})</h2>
-        {sharedNotebooks.length > 0 ? (
-          <div className="notebook-list">
-            {sharedNotebooks.map((notebook) => (
-              <div key={notebook._id} className="notebook-card shared">
-                <h3>{notebook.name}</h3>
-                <p>Owner: {notebook.owner_email}</p>
-                <p>Created: {new Date(notebook.created_at).toLocaleDateString()}</p>
-                {(() => {
-                  const currentUserEmail = localStorage.getItem('email');
-                  const myPermissionEntry = notebook.access_list?.find(entry => entry.user_email === currentUserEmail);
-                  const permissionText = myPermissionEntry?.permission === 'edit' ? '✏️ Can Edit' : '👁️ View Only';
-                  return <p className="permission-tag">{permissionText}</p>;
-                })()}
-                <div className="card-actions">
-                  <Link to={`/notebook/${notebook._id}`} className="open-button">
-                    📖 Open
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          !message.includes('Loading') && 
-          !message.startsWith('Error') && 
-          <p>No notebooks have been shared with you yet. Ask your colleagues to share their notebooks with you! 🤝</p>
-        )}
-      </div>
+      <motion.section className="notebook-section" variants={itemVariants}>
+        <motion.h2 
+          className="section-title"
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+        >
+          <IoPeopleOutline className="section-icon" />
+          Shared With Me ({sharedNotebooks.length})
+        </motion.h2>
+        
+        <AnimatePresence mode="wait">
+          {sharedNotebooks.length > 0 ? (
+            <motion.div 
+              className="notebook-list"
+              layout
+            >
+              {sharedNotebooks.map((notebook, index) => (
+                <motion.div
+                  key={notebook._id}
+                  className="notebook-card shared"
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  whileHover="hover"
+                  whileTap="tap"
+                  layout
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <div className="notebook-header">
+                    <h3>
+                      <FiBook className="notebook-icon" />
+                      {notebook.name}
+                    </h3>
+                    <motion.span 
+                      className="date-badge"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      {new Date(notebook.created_at).toLocaleDateString()}
+                    </motion.span>
+                  </div>
+
+                  <div className="notebook-meta">
+                    <p>
+                      <FiUser className="meta-icon" />
+                      Owner: {notebook.owner_email}
+                    </p>
+                    {(() => {
+                      const currentUserEmail = localStorage.getItem('email');
+                      const myPermissionEntry = notebook.access_list?.find(entry => entry.user_email === currentUserEmail);
+                      const permissionText = myPermissionEntry?.permission === 'edit' ? '✏️ Can Edit' : '👁️ View Only';
+                      return (
+                        <motion.p 
+                          className="permission-tag"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          whileHover={{ scale: 1.05 }}
+                        >
+                          {permissionText}
+                        </motion.p>
+                      );
+                    })()}
+                  </div>
+
+                  <div className="card-actions">
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Link to={`/notebook/${notebook._id}`} className="open-button">
+                        <FiBook />
+                        Open
+                      </Link>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            !message.includes('Loading') && 
+            !message.startsWith('Error') && (
+              <motion.div 
+                className="empty-state"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+              >
+                <FiUsers className="empty-icon" />
+                <h3>No shared notebooks</h3>
+                <p>Ask your colleagues to share their notebooks with you! 🤝</p>
+              </motion.div>
+            )
+          )}
+        </AnimatePresence>
+      </motion.section>
 
       {/* Render Share Modal conditionally */}
-      {isShareModalOpen && (
-        <ShareModal
-          notebookId={selectedNotebook.id}
-          notebookName={selectedNotebook.name}
-          token={token}
-          onClose={closeShareModal}
-          darkMode={darkMode}
-        />
-      )}
-    </div>
+      <AnimatePresence>
+        {isShareModalOpen && (
+          <ShareModal
+            notebookId={selectedNotebook.id}
+            notebookName={selectedNotebook.name}
+            token={token}
+            onClose={closeShareModal}
+            darkMode={darkMode}
+          />
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
