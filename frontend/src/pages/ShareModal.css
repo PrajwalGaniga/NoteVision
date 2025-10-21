@@ -1,0 +1,105 @@
+/* Modal Backdrop */
+.modal-backdrop {
+  position: fixed; /* Sit on top of the page content */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Black background with opacity */
+  display: flex; /* Use flexbox to center content */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Make sure it's on top */
+}
+
+/* Modal Content Box */
+.modal-content {
+  background-color: #fff;
+  padding: 30px 40px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px; /* Limit maximum width */
+  position: relative; /* Needed for positioning close button later if desired */
+  text-align: center;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: #333;
+  word-break: break-word; /* Wrap long notebook names */
+}
+
+/* Re-use input group styles from AuthPage? Or define here */
+.modal-content .input-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+.modal-content .input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #555;
+}
+.modal-content .input-group input,
+.modal-content .input-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1em;
+}
+
+.share-submit-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 10px; /* Space above button */
+}
+
+.share-submit-button:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+ .share-submit-button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+
+.share-message {
+  margin-top: 15px;
+  font-weight: 500;
+}
+.share-message.error {
+  color: #e74c3c;
+}
+.share-message.success {
+  color: #2ecc71;
+}
+
+.close-modal-button {
+  background: none;
+  border: 1px solid #ccc;
+  color: #555;
+  cursor: pointer;
+  margin-top: 20px;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.close-modal-button:hover {
+  background-color: #f1f1f1;
+}
+ .close-modal-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
